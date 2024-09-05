@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dependency-groups"
+version = "0.1.0"
+description = 'A tool for resolving PEP 735 Dependency Group data'
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+keywords = []
+authors = [
+  { name = "Stephen Rosen", email = "sirosen@globus.org" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = ["packaging"]
+
+[project.urls]
+source = "https://github.com/sirosen/dependency-groups"
+changelog = "https://github.com/sirosen/dependency-groups/blob/main/CHANGELOG.md"
+
+
+[tool.coverage.run]
+parallel = true
+source = ["dependency_groups"]
+
+[tool.coverage.paths]
+source = [
+    "src/",
+    "*/site-packages/",
+]
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    # the pragma to disable coverage
+    "pragma: no cover",
+    # don't complain if tests don't hit unimplemented methods/modes
+    "raise NotImplementedError",
+    # don't check on executable components of importable modules
+    "if __name__ == .__main__.:",
+    # mypy-only code segments
+    "if t.TYPE_CHECKING:",
+    # type-checking overloads
+    "@t.overload"
+]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+disallow_subclassing_any = false
+files = ["src"]
+
+[tool.isort]
+profile = "black"
+known_first_party = ["mddj"]
