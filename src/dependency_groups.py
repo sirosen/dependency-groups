@@ -1,6 +1,6 @@
 import re
 import sys
-import tomllib
+import typing as t
 from collections import defaultdict
 from collections.abc import Mapping
 
@@ -12,8 +12,8 @@ def _normalize_name(name: str) -> str:
 
 
 def _normalize_group_names(
-    dependency_groups: Mapping[str, str | Mapping[str, str]]
-) -> Mapping[str, str | Mapping[str, str]]:
+    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]]
+) -> Mapping[str, t.Union[str, Mapping[str, str]]]:
     original_names = defaultdict(list)
     normalized_groups = {}
 
@@ -33,7 +33,7 @@ def _normalize_group_names(
 
 
 def _resolve_dependency_group(
-    dependency_groups: Mapping[str, str | Mapping[str, str]],
+    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]],
     group: str,
     past_groups: tuple[str, ...] = (),
 ) -> list[str]:
@@ -72,7 +72,7 @@ def _resolve_dependency_group(
 
 
 def resolve(
-    dependency_groups: Mapping[str, str | Mapping[str, str]], group: str, /
+    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]], group: str, /
 ) -> list[str]:
     """
     Resolve a dependency group to a list of requirements, as strings.
@@ -95,7 +95,7 @@ def resolve(
 
 
 def resolve_tree(
-    dependency_groups: Mapping[str, str | Mapping[str, str]], group: str, /
+    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]], group: str, /
 ) -> list[str]:
     """
     Not yet implemented.
@@ -106,6 +106,8 @@ def resolve_tree(
 
 
 if __name__ == "__main__":
+    import tomllib
+
     filename = "pyproject.toml"
     if len(sys.argv) > 1:
         filename = sys.argv[1]
