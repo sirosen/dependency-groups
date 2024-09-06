@@ -31,9 +31,70 @@ def test_normalized_group_name():
     assert resolve(groups, "test") == ["pytest"]
 
 
+def test_malformed_group_data():
+    groups = [{"test": ["pytest"]}]
+    with pytest.raises(TypeError, match="Dependency Groups table is not a mapping"):
+        resolve(groups, "test")
+
+
+def test_malformed_group_query():
+    groups = {"test": ["pytest"]}
+    with pytest.raises(TypeError, match="Dependency group name is not a str"):
+        resolve(groups, 0)
+
+
 def test_no_such_group_name():
     groups = {
         "test": ["pytest"],
     }
     with pytest.raises(LookupError, match="'testing' not found"):
         resolve(groups, "testing")
+
+
+def test_duplicate_normalized_name():
+    groups = {
+        "test": ["pytest"],
+        "TEST": ["nose2"],
+    }
+    with pytest.raises(
+        ValueError,
+        match=r"Duplicate dependency group names: test \((test, TEST)|(TEST, test)\)",
+    ):
+        resolve(groups, "test")
+
+
+def test_cyclic_include():
+    groups = {
+        "group1": [
+            {"include-group": "group2"},
+        ],
+        "group2": [
+            {"include-group": "group1"},
+        ],
+    }
+    with pytest.raises(
+        ValueError,
+        match=r"Cyclic dependency group include: group1 -> \('group1', 'group2'\)",
+    ):
+        resolve(groups, "group1")
+
+
+def test_non_list_data():
+    groups = {"test": "pytest, coverage"}
+    with pytest.raises(ValueError, match="Dependency group 'test' is not a list"):
+        resolve(groups, "test")
+
+
+@pytest.mark.parametrize(
+    "item",
+    (
+        {},
+        {"foo": "bar"},
+        {"include-group": "testing", "foo": "bar"},
+        object(),
+    ),
+)
+def test_unknown_object_shape(item):
+    groups = {"test": [item]}
+    with pytest.raises(ValueError, match="Invalid dependency group item:"):
+        resolve(groups, "test")
