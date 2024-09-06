@@ -7,23 +7,148 @@ from collections.abc import Mapping
 from packaging.requirements import Requirement
 
 
-class DependencyGroupInclude:
+class Resolver:
     def __init__(
         self,
-        include_group: str,
-        resolved_contents: list[t.Union[str, "DependencyGroupInclude"]],
+        dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]],
     ) -> None:
-        self.include_group = include_group
-        self.resolved_contents = resolved_contents
+        if not isinstance(dependency_groups, Mapping):
+            raise TypeError("Dependency Groups table is not a mapping")
+        self.dependency_groups = _normalize_group_names(dependency_groups)
+        self._resolve_cache: dict[str, tuple[str, ...]] = {}
 
-    def expand(self) -> list[str]:
-        ret: list[str] = []
-        for item in self.resolved_contents:
+    def resolve(self, group: str) -> tuple[str, ...]:
+        """
+        Resolve a dependency group to a list of requirements, as strings.
+
+        :param group: the name of the group to resolve
+
+        :raises TypeError: if the inputs appear to be the wrong types
+        :raises ValueError: if the data does not appear to be valid dependency group
+            data
+        :raises LookupError: if group name is absent
+        :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
+        """
+        if not isinstance(group, str):
+            raise TypeError("Dependency group name is not a str")
+        return self._resolve(group)
+
+    def resolve_tree(
+        self, group: str
+    ) -> tuple[t.Union[str, "DependencyGroupInclude"], ...]:
+        """
+        Perform resolution, revealing the structure of the dependency groups. Returns a
+        list of strings and ``DependencyGroupInclude``s.
+
+        :param group: the name of the group to resolve
+
+        :raises TypeError: if the inputs appear to be the wrong types
+        :raises ValueError: if the data does not appear to be valid dependency group
+            data
+        :raises LookupError: if group name is absent
+        :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
+        """
+        if not isinstance(group, str):
+            raise TypeError("Dependency group name is not a str")
+        return self._resolve_tree(group)
+
+    def _resolve(
+        self, group: str, past_groups: tuple[str, ...] = ()
+    ) -> tuple[str, ...]:
+        """
+        This is a helper for cached resolution to strings.
+
+        :param group: The name of the group to resolve.
+        :param past_groups: The groups which were already resolved up-tree from the
+            current step; used for cycle detection.
+        """
+        group = _normalize_name(group)
+        if group in self._resolve_cache:
+            return self._resolve_cache[group]
+
+        if group in past_groups:
+            raise ValueError(
+                f"Cyclic dependency group include: {group} -> {past_groups}"
+            )
+
+        if group not in self.dependency_groups:
+            raise LookupError(f"Dependency group '{group}' not found")
+
+        raw_group = self.dependency_groups[group]
+        if not isinstance(raw_group, list):
+            raise ValueError(f"Dependency group '{group}' is not a list")
+
+        resolved_group = []
+        for item in raw_group:
             if isinstance(item, str):
-                ret.append(item)
+                # packaging.requirements.Requirement parsing ensures that this is a
+                # valid PEP 508 Dependency Specifier
+                # raises InvalidRequirement on failure
+                Requirement(item)
+                resolved_group.append(item)
+            elif isinstance(item, dict):
+                if tuple(item.keys()) != ("include-group",):
+                    raise ValueError(f"Invalid dependency group item: {item}")
+
+                include_group = next(iter(item.values()))
+                resolved_group.extend(
+                    self._resolve(
+                        include_group,
+                        past_groups + (group,),
+                    )
+                )
             else:
-                ret.extend(item.expand())
-        return ret
+                raise ValueError(f"Invalid dependency group item: {item}")
+
+        self._resolve_cache[group] = tuple(resolved_group)
+        return self._resolve_cache[group]
+
+    def _resolve_tree(
+        self, group: str
+    ) -> tuple[t.Union[str, "DependencyGroupInclude"], ...]:
+        """
+        This is a helper for cached resolution to strings and DependencyGroupIncludes.
+
+        :param group: The name of the group to resolve.
+        :param past_groups: The groups which were already resolved up-tree from the
+            current step; used for cycle detection.
+        """
+        group = _normalize_name(group)
+
+        if group not in self.dependency_groups:
+            raise LookupError(f"Dependency group '{group}' not found")
+
+        raw_group = self.dependency_groups[group]
+        if not isinstance(raw_group, list):
+            raise ValueError(f"Dependency group '{group}' is not a list")
+
+        resolved_group = []
+        for item in raw_group:
+            if isinstance(item, str):
+                # packaging.requirements.Requirement parsing ensures that this is a
+                # valid PEP 508 Dependency Specifier
+                # raises InvalidRequirement on failure
+                Requirement(item)
+                resolved_group.append(item)
+            elif isinstance(item, dict):
+                if tuple(item.keys()) != ("include-group",):
+                    raise ValueError(f"Invalid dependency group item: {item}")
+
+                include_group = next(iter(item.values()))
+                resolved_group.append(DependencyGroupInclude(include_group, self))
+            else:
+                raise ValueError(f"Invalid dependency group item: {item}")
+
+        return resolved_group
+
+
+class DependencyGroupInclude:
+    def __init__(self, include_group: str, resolver: Resolver) -> None:
+        self.include_group = include_group
+        self.resolver = resolver
+
+    def expand(self) -> tuple[str, ...]:
+        return self.resolver.resolve(self.include_group)
 
 
 def _normalize_name(name: str) -> str:
@@ -51,82 +176,9 @@ def _normalize_group_names(
     return normalized_groups
 
 
-def _resolve_dependency_group(
-    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]],
-    group: str,
-    flatten: bool,
-    past_groups: tuple[str, ...] = (),
-) -> list[t.Union[str, DependencyGroupInclude]]:
-    """
-    This is the primary driver/helper for resolution.
-
-    It takes dependency group data with names already normalized, and a
-    target group name to retrieve, and returns either a list of dependency specifiers
-    or a mixed list of specifiers and include objects.
-
-    :param dependency_groups: The ``[dependency-groups]`` table, after name
-        normalization.
-    :param group: The name of the group to resolve.
-    :param flatten: Whether or not to eagerly expand out dependency groups. Allowing for
-        both modes in the helper keeps both behaviors efficient.
-    :param past_groups: The groups which were already resolved up-tree from the current
-        step; used for cycle detection.
-    """
-    group = _normalize_name(group)
-
-    if group in past_groups:
-        raise ValueError(f"Cyclic dependency group include: {group} -> {past_groups}")
-
-    if group not in dependency_groups:
-        raise LookupError(f"Dependency group '{group}' not found")
-
-    raw_group = dependency_groups[group]
-    if not isinstance(raw_group, list):
-        raise ValueError(f"Dependency group '{group}' is not a list")
-
-    resolved_group = []
-    for item in raw_group:
-        if isinstance(item, str):
-            # packaging.requirements.Requirement parsing ensures that this is a valid
-            # PEP 508 Dependency Specifier
-            # raises InvalidRequirement on failure
-            Requirement(item)
-            resolved_group.append(item)
-        elif isinstance(item, dict):
-            if tuple(item.keys()) != ("include-group",):
-                raise ValueError(f"Invalid dependency group item: {item}")
-
-            include_group = next(iter(item.values()))
-            if flatten:
-                resolved_group.extend(
-                    _resolve_dependency_group(
-                        dependency_groups,
-                        include_group,
-                        flatten,
-                        past_groups + (group,),
-                    )
-                )
-            else:
-                resolved_group.append(
-                    DependencyGroupInclude(
-                        include_group,
-                        _resolve_dependency_group(
-                            dependency_groups,
-                            include_group,
-                            flatten,
-                            past_groups + (group,),
-                        ),
-                    )
-                )
-        else:
-            raise ValueError(f"Invalid dependency group item: {item}")
-
-    return resolved_group
-
-
 def resolve_tree(
     dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]], group: str, /
-) -> list[t.Union[str, DependencyGroupInclude]]:
+) -> tuple[t.Union[str, DependencyGroupInclude], ...]:
     """
     Perform resolution, revealing the structure of the dependency groups. Returns a list
     of strings and ``DependencyGroupInclude``s.
@@ -140,17 +192,12 @@ def resolve_tree(
     :raises LookupError: if group name is absent
     :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
     """
-    if not isinstance(dependency_groups, Mapping):
-        raise TypeError("Dependency Groups table is not a mapping")
-    if not isinstance(group, str):
-        raise TypeError("Dependency group name is not a str")
-    dependency_groups = _normalize_group_names(dependency_groups)
-    return _resolve_dependency_group(dependency_groups, group, flatten=False)
+    return Resolver(dependency_groups).resolve_tree(group)
 
 
 def resolve(
     dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]], group: str, /
-) -> list[str]:
+) -> tuple[str, ...]:
     """
     Resolve a dependency group to a list of requirements, as strings.
 
@@ -163,14 +210,7 @@ def resolve(
     :raises LookupError: if group name is absent
     :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
     """
-    if not isinstance(dependency_groups, Mapping):
-        raise TypeError("Dependency Groups table is not a mapping")
-    if not isinstance(group, str):
-        raise TypeError("Dependency group name is not a str")
-    dependency_groups = _normalize_group_names(dependency_groups)
-    return _resolve_dependency_group(  # type: ignore[return-value]
-        dependency_groups, group, flatten=True
-    )
+    return Resolver(dependency_groups).resolve(group)
 
 
 if __name__ == "__main__":

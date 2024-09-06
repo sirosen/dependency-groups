@@ -24,7 +24,7 @@ def test_single_include_group():
     includes = [x for x in tree if not isinstance(x, str)]
     assert len(includes) == 1
     assert includes[0].include_group == "runtime"
-    assert includes[0].resolved_contents == ["sqlalchemy"]
+    assert includes[0].expand() == ("sqlalchemy",)
 
 
 def test_multilayer_nested_include_group_expansion():
