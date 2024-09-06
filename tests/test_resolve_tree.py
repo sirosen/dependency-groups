@@ -1,3 +1,5 @@
+import pytest
+
 from dependency_groups import resolve_tree
 
 
@@ -60,3 +62,75 @@ def test_multilayer_nested_include_group_expansion():
         "apispec",
     ):
         assert dep in expanded
+
+
+def test_malformed_group_data():
+    groups = [{"test": ["pytest"]}]
+    with pytest.raises(TypeError, match="Dependency Groups table is not a mapping"):
+        resolve_tree(groups, "test")
+
+
+def test_malformed_group_query():
+    groups = {"test": ["pytest"]}
+    with pytest.raises(TypeError, match="Dependency group name is not a str"):
+        resolve_tree(groups, 0)
+
+
+def test_no_such_group_name():
+    groups = {
+        "test": ["pytest"],
+    }
+    with pytest.raises(LookupError, match="'testing' not found"):
+        resolve_tree(groups, "testing")
+
+
+def test_duplicate_normalized_name():
+    groups = {
+        "test": ["pytest"],
+        "TEST": ["nose2"],
+    }
+    with pytest.raises(
+        ValueError,
+        match=r"Duplicate dependency group names: test \((test, TEST)|(TEST, test)\)",
+    ):
+        resolve_tree(groups, "test")
+
+
+def test_cyclic_include():
+    groups = {
+        "group1": [
+            {"include-group": "group2"},
+        ],
+        "group2": [
+            {"include-group": "group1"},
+        ],
+    }
+    resolved = resolve_tree(groups, "group1")
+    assert len(resolved) == 1
+    include = resolved[0]
+    with pytest.raises(
+        ValueError,
+        match=r"Cyclic dependency group include: group2 -> \('group2', 'group1'\)",
+    ):
+        include.expand()
+
+
+def test_non_list_data():
+    groups = {"test": "pytest, coverage"}
+    with pytest.raises(ValueError, match="Dependency group 'test' is not a list"):
+        resolve_tree(groups, "test")
+
+
+@pytest.mark.parametrize(
+    "item",
+    (
+        {},
+        {"foo": "bar"},
+        {"include-group": "testing", "foo": "bar"},
+        object(),
+    ),
+)
+def test_unknown_object_shape(item):
+    groups = {"test": [item]}
+    with pytest.raises(ValueError, match="Invalid dependency group item:"):
+        resolve_tree(groups, "test")
