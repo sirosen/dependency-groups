@@ -32,21 +32,110 @@ groups = {
 resolve(groups, "test")  # ['pytest', 'flask']
 ```
 
-Using `dependency_groups.resolve_tree`, you can produce a list of strings and
-`dependency_groups.Dependency` objects. Those objects may be
-`Include`s, which can, in turn, be expanded.
+The library provides its resolution machinery via an object oriented interface,
+which allows users to explore the structure of data before or during
+resolution using `DependencyGroupInclude` and `DependencyGroupResolver`.
+
+For example,
 
 ```python
-from dependency_groups import resolve_tree
+from dependency_groups import DependencyGroupResolver
 
 groups = {
   "test": ["pytest", {"include-group": "runtime"}],
   "runtime": ["flask"],
 }
 
-resolved = resolve_tree(groups, "test")  # ['pytest', Include('runtime')]
-include = next(value for value in resolved if not isinstance(value, str))
-include.values  # ['flask']
+resolver = DependencyGroupResolver(groups)
+
+# you can lookup a group without resolving it
+resolver.lookup("test")  # [Requirement('pytest'), DependencyGroupInclude('runtime')]
+
+# and resolve() produces packaging Requirements
+resolver.resolve("test")  # [Requirement('pytest'), Requirement('flask')]
+```
+
+### Functional Interface
+
+```python
+def resolve(
+    dependency_groups: Mapping[str, str | Mapping[str, str]], group: str, /
+) -> tuple[str, ...]:
+    """
+    Resolve a dependency group to a tuple of requirements, as strings.
+
+    :param dependency_groups: the parsed contents of the ``[dependency-groups]`` table
+        from ``pyproject.toml``
+    :param group: the name of the group to resolve
+
+    :raises TypeError: if the inputs appear to be the wrong types
+    :raises ValueError: if the data does not appear to be valid dependency group data
+    :raises LookupError: if group name is absent
+    :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
+    """
+```
+
+### Models
+
+Parsed Dependency Group Includes are represented by a dataclass:
+
+```python
+@dataclasses.dataclass
+class DependencyGroupInclude:
+    include_group: str
+```
+
+### Resolver
+
+```python
+class DependencyGroupResolver:
+    """
+    A resolver for Dependency Group data.
+
+    This class handles caching, name normalization, cycle detection, and other
+    parsing requirements. There are only two public methods for exploring the data:
+    ``lookup()`` and ``resolve()``.
+
+    :param dependency_groups: A mapping, as provided via pyproject
+        ``[dependency-groups]``.
+    """
+
+    def lookup(self, group: str) -> tuple[Requirement | DependencyGroupInclude, ...]:
+        """
+        Lookup a group name, returning the parsed dependency data for that group.
+        This will not resolve includes.
+
+        :param group: the name of the group to lookup
+
+        :raises ValueError: if the data does not appear to be valid dependency group
+            data
+        :raises LookupError: if group name is absent
+        :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
+        """
+
+    def resolve(self, group: str) -> tuple[Requirement, ...]:
+        """
+        Resolve a dependency group to a list of requirements.
+
+        :param group: the name of the group to resolve
+
+        :raises TypeError: if the inputs appear to be the wrong types
+        :raises ValueError: if the data does not appear to be valid dependency group
+            data
+        :raises LookupError: if group name is absent
+        :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
+        """
+```
+
+### Errors
+
+The following error classes are defined:
+
+```python
+class CyclicDependencyError(ValueError):
+    """
+    An error representing the detection of a cycle.
+    """
 ```
 
 ## License

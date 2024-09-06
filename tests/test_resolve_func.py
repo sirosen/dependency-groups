@@ -74,9 +74,50 @@ def test_cyclic_include():
     }
     with pytest.raises(
         ValueError,
-        match=r"Cyclic dependency group include: group1 -> \('group1', 'group2'\)",
+        match=(
+            "Cyclic dependency group include while resolving group1: "
+            "group1 -> group2, group2 -> group1"
+        ),
     ):
         resolve(groups, "group1")
+
+
+def test_cyclic_include_self():
+    groups = {
+        "group1": [
+            {"include-group": "group1"},
+        ],
+    }
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Cyclic dependency group include while resolving group1: "
+            "group1 includes itself"
+        ),
+    ):
+        resolve(groups, "group1")
+
+
+def test_cyclic_include_ring_under_root():
+    groups = {
+        "root": [
+            {"include-group": "group1"},
+        ],
+        "group1": [
+            {"include-group": "group2"},
+        ],
+        "group2": [
+            {"include-group": "group1"},
+        ],
+    }
+    with pytest.raises(
+        ValueError,
+        match=(
+            "Cyclic dependency group include while resolving root: "
+            "group1 -> group2, group2 -> group1"
+        ),
+    ):
+        resolve(groups, "root")
 
 
 def test_non_list_data():

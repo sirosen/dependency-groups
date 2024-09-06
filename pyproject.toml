@@ -30,6 +30,9 @@ dependencies = ["packaging"]
 source = "https://github.com/sirosen/dependency-groups"
 changelog = "https://github.com/sirosen/dependency-groups/blob/main/CHANGELOG.md"
 
+[tool.setuptools.package-data]
+dependency_groups = ["py.typed"]
+
 
 [tool.coverage.run]
 parallel = true
