@@ -1,6 +1,5 @@
 import dataclasses
 import re
-import sys
 import typing as t
 from collections import defaultdict
 from collections.abc import Mapping
@@ -209,16 +208,3 @@ def resolve(
     return tuple(
         str(r) for r in DependencyGroupResolver(dependency_groups).resolve(group)
     )
-
-
-if __name__ == "__main__":
-    import tomllib
-
-    filename = "pyproject.toml"
-    if len(sys.argv) > 1:
-        filename = sys.argv[1]
-    with open(filename, "rb") as fp:
-        pyproject = tomllib.load(fp)
-
-    dependency_groups_raw = pyproject["dependency-groups"]
-    print("\n".join(resolve(pyproject["dependency-groups"], sys.argv[1])))

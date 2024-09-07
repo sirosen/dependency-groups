@@ -2,6 +2,11 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[dependency-groups]
+test = ["pytest", "coverage"]
+lint = ["pre-commit"]
+typing = ["mypy", "packaging"]
+
 [project]
 name = "dependency-groups"
 version = "0.1.0"
