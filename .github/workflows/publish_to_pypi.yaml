@@ -1,0 +1,60 @@
+name: Publish PyPI Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-dists:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: python -m pip install build twine
+
+      - name: Build Dists
+        run: python -m build .
+
+      - name: Check Dists (twine)
+        run: twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist/*
+
+  publish_pypi:
+    needs: [build-dists]
+    runs-on: ubuntu-latest
+    environment: publish
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish_release_asset:
+    needs: [build-dists]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: dist
+
+      - name: Publish to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "${{ github.ref_name }}" dist/*
