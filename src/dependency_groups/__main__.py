@@ -31,10 +31,21 @@ parser.add_argument(
     default="pyproject.toml",
     help="The pyproject.toml file. Defaults to trying in the current directory.",
 )
+parser.add_argument(
+    "-o",
+    "--output",
+    help="An output file. Defaults to stdout.",
+)
 args = parser.parse_args()
 
 with open(args.pyproject_file, "rb") as fp:
     pyproject = tomllib.load(fp)
 
 dependency_groups_raw = pyproject.get("dependency-groups", {})
-print("\n".join(resolve(dependency_groups_raw, args.GROUP_NAME)))
+content = "\n".join(resolve(dependency_groups_raw, args.GROUP_NAME))
+
+if args.output is None or args.output == "-":
+    print(content)
+else:
+    with open(args.output, "w") as fp:
+        print(content, file=fp)

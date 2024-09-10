@@ -3,9 +3,11 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [dependency-groups]
-test = ["pytest", "coverage"]
+coverage = ["coverage[toml]"]
+test = ["pytest", {include-group = "coverage"}]
 lint = ["pre-commit"]
 typing = ["mypy", "packaging"]
+build = ["twine", "build"]
 
 [project]
 name = "dependency-groups"
