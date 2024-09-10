@@ -80,8 +80,8 @@ class DependencyGroupResolver:
         self._parsed_groups: dict[
             str, tuple[t.Union[Requirement, DependencyGroupInclude], ...]
         ] = {}
-        # a map of group names to their descendants, used for cycle detection
-        self._include_graph_descendants: dict[str, list[str]] = defaultdict(list)
+        # a map of group names to their ancestors, used for cycle detection
+        self._include_graph_ancestors: dict[str, tuple[str, ...]] = defaultdict(tuple)
         # a cache of completed resolutions to Requirement lists
         self._resolve_cache: dict[str, tuple[Requirement, ...]] = {}
 
@@ -172,12 +172,14 @@ class DependencyGroupResolver:
             if isinstance(item, Requirement):
                 resolved_group.append(item)
             elif isinstance(item, DependencyGroupInclude):
-                if group in self._include_graph_descendants[item.include_group]:
+                if item.include_group in self._include_graph_ancestors[group]:
                     raise CyclicDependencyError(
                         requested_group, group, item.include_group
                     )
                 else:
-                    self._include_graph_descendants[group].append(item.include_group)
+                    self._include_graph_ancestors[item.include_group] = (
+                        self._include_graph_ancestors[group] + (group,)
+                    )
                 resolved_group.extend(
                     self._resolve(item.include_group, requested_group)
                 )

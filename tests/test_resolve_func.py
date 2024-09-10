@@ -82,6 +82,18 @@ def test_cyclic_include():
         resolve(groups, "group1")
 
 
+def test_cyclic_include_many_steps():
+    groups = {}
+    for i in range(100):
+        groups[f"group{i}"] = [{"include-group": f"group{i+1}"}]
+    groups["group100"] = [{"include-group": "group0"}]
+    with pytest.raises(
+        ValueError,
+        match="Cyclic dependency group include while resolving group0:",
+    ):
+        resolve(groups, "group0")
+
+
 def test_cyclic_include_self():
     groups = {
         "group1": [
