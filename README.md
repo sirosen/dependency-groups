@@ -138,6 +138,13 @@ class CyclicDependencyError(ValueError):
     """
 ```
 
+### CLI Usage
+
+`dependency-groups` provides a simple, module-level entrypoint.
+It can parse a pyproject.toml file and print a dependency group's contents back
+out.
+Just use `python -m dependency_groups --help` for details!
+
 ## License
 
 `dependency-groups` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
