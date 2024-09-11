@@ -63,6 +63,7 @@ def main():
     comparse_versions(old_version, new_version)
 
     replace_version("pyproject.toml", 'version = "{}"', old_version, new_version)
+    replace_version("README.md", "rev: {}", old_version, new_version)
     update_changelog(new_version)
 
 

@@ -145,6 +145,25 @@ It can parse a pyproject.toml file and print a dependency group's contents back
 out.
 Just use `python -m dependency_groups --help` for details!
 
+### Lint CLI
+
+`dependency-groups` includes a linter, `lint-dependency-groups`, as a separate
+CLI entrypoint.
+
+Use `lint-dependency-groups --help` for details.
+
+#### pre-commit
+
+The `lint-dependency-groups` CLI is also available as a pre-commit hook:
+
+```yaml
+repos:
+  - repo: https://github.com/sirosen/dependency-groups
+    rev: 0.2.2
+    hooks:
+      - id: lint-dependency-groups
+```
+
 ## License
 
 `dependency-groups` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
