@@ -3,6 +3,7 @@
 ## Unreleased
 
 - The pre-commit hook sets `pass_filenames: false`
+- The error presentation in the lint CLI has been improved
 
 ## 0.2.1
 

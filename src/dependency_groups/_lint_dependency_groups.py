@@ -40,14 +40,19 @@ def main(*, argv: list[str] | None = None) -> None:
     with open(args.pyproject_file, "rb") as fp:
         pyproject = tomllib.load(fp)
     dependency_groups_raw = pyproject.get("dependency-groups", {})
-    resolver = DependencyGroupResolver(dependency_groups_raw)
 
     errors: list[str] = []
-    for groupname in resolver.dependency_groups:
-        try:
-            resolver.resolve(groupname)
-        except (LookupError, ValueError) as e:
-            errors.append(str(e))
+    try:
+        resolver = DependencyGroupResolver(dependency_groups_raw)
+    except (ValueError, TypeError) as e:
+        errors.append(f"{type(e).__name__}: {e}")
+    else:
+        for groupname in resolver.dependency_groups:
+            try:
+                resolver.resolve(groupname)
+            except (LookupError, ValueError, TypeError) as e:
+                errors.append(f"{type(e).__name__}: {e}")
+
     if errors:
         print("errors encountered while examining dependency groups:")
         for msg in errors:

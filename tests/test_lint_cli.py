@@ -52,7 +52,7 @@ foo = [{badkey = "value"}]
         res.stdout
         == """\
 errors encountered while examining dependency groups:
-  Invalid dependency group item: {'badkey': 'value'}
+  ValueError: Invalid dependency group item: {'badkey': 'value'}
 """
     )
     assert res.stderr == ""
@@ -67,3 +67,19 @@ def test_no_toml_failure(run, tmp_path, monkeypatch):
     res = run("-f", tomlfile)
     assert res.code == 2
     assert "requires tomli or Python 3.11+" in res.stderr
+
+
+def test_dependency_groups_list_format(run, tmp_path):
+    tomlfile = tmp_path / "pyproject.toml"
+    tomlfile.write_text("[[dependency-groups]]")
+
+    res = run("-f", tomlfile)
+    assert res.code == 1
+    assert (
+        res.stdout
+        == """\
+errors encountered while examining dependency groups:
+  TypeError: Dependency Groups table is not a mapping
+"""
+    )
+    assert res.stderr == ""
