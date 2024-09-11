@@ -18,7 +18,7 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = []
 authors = [
-  { name = "Stephen Rosen", email = "sirosen@globus.org" },
+  { name = "Stephen Rosen", email = "sirosen0@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -31,6 +31,9 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = ["packaging"]
+
+[project.scripts]
+lint-dependency-groups = "dependency_groups._lint_dependency_groups:main"
 
 [project.urls]
 source = "https://github.com/sirosen/dependency-groups"
