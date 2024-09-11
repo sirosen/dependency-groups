@@ -5,3 +5,4 @@
   language: python
   types: [toml]
   files: ^pyproject\.toml$
+  pass_filenames: false

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The pre-commit hook sets `pass_filenames: false`
+
 ## 0.2.1
 
 - Bugfix to pre-commit config
