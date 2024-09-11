@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.1
+
 - Bugfix to pre-commit config
 
 ## 0.2.0
