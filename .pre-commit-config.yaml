@@ -8,10 +8,9 @@ repos:
       - id: check-merge-conflict
       - id: trailing-whitespace
   - repo: https://github.com/sirosen/dependency-groups
-    rev: 0.2.1
+    rev: 0.2.2
     hooks:
       - id: lint-dependency-groups
-        pass_filenames: false
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.29.2
     hooks:
