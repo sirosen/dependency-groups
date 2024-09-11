@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Bugfix to pre-commit config
+
 ## 0.2.0
 
 - Add a new CLI component, `lint-dependency-groups`, which can be used to lint

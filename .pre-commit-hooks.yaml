@@ -3,5 +3,5 @@
   description: 'Read all Dependency Groups and validate that their contents can resolve'
   entry: lint-dependency-groups
   language: python
-  types: toml
+  types: [toml]
   files: ^pyproject\.toml$
