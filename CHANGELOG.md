@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.2.0
+
 - Add a new CLI component, `lint-dependency-groups`, which can be used to lint
   dependency groups.
 - Provide a pre-commit hook, named `lint-dependency-groups`
