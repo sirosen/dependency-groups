@@ -164,6 +164,14 @@ repos:
       - id: lint-dependency-groups
 ```
 
+### Install CLI
+
+`dependency-groups` includes a `pip` wrapper, `pip-install-dependency-groups`.
+
+Usage is simple, just `pip-install-dependency-groups groupname` to install!
+
+Use `pip-install-dependency-groups --help` for more details.
+
 ## License
 
 `dependency-groups` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
