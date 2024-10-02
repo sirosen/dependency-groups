@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.3.0
+
 - Add a new command, `pip-install-dependency-groups`, which is capable of
   installing dependency groups by invoking `pip`
 

@@ -159,7 +159,7 @@ The `lint-dependency-groups` CLI is also available as a pre-commit hook:
 ```yaml
 repos:
   - repo: https://github.com/sirosen/dependency-groups
-    rev: 0.2.2
+    rev: 0.3.0
     hooks:
       - id: lint-dependency-groups
 ```
