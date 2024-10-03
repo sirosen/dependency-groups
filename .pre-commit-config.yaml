@@ -8,7 +8,7 @@ repos:
       - id: check-merge-conflict
       - id: trailing-whitespace
   - repo: https://github.com/sirosen/dependency-groups
-    rev: 0.2.2
+    rev: 0.3.0
     hooks:
       - id: lint-dependency-groups
   - repo: https://github.com/python-jsonschema/check-jsonschema
@@ -44,3 +44,13 @@ repos:
     rev: v2.3.0
     hooks:
       - id: codespell
+  - repo: "local"
+    hooks:
+      # When Dependabot submits a PR to update a workflow,
+      # update the project version is several locations.
+      - id: "canary"
+        name: "Synchronize versions"
+        language: "python"
+        entry: "python scripts/sync-version.py"
+        files: ".github/workflows/canary.yaml"
+        pass_filenames: false
