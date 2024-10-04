@@ -1,0 +1,18 @@
+# This workflow exists to bait Dependabot into submitting update PRs.
+#
+# 1. When a new project version is released, a git tag is created.
+#
+# 2. Dependabot will notice the new tag and will submit a PR
+#    to update the tagged version in the workflow below.
+#
+# 3. pre-commit.ci will be triggered when Dependabot opens a PR,
+#    which will trigger a pre-commit hook that updates versions
+#    that exist in several related files.
+
+name: "Canary"
+on:
+  workflow_call:
+
+jobs:
+  bait-dependabot:
+    uses: "sirosen/dependency-groups/.github/workflows/canary.yaml@0.3.0"
