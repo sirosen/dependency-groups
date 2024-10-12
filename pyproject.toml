@@ -43,6 +43,7 @@ pip-install-dependency-groups = "dependency_groups._pip_wrapper:main"
 [project.urls]
 source = "https://github.com/sirosen/dependency-groups"
 changelog = "https://github.com/sirosen/dependency-groups/blob/main/CHANGELOG.rst"
+documentation = "https://dependency-groups.readthedocs.io/"
 
 [tool.setuptools.package-data]
 dependency_groups = ["py.typed"]
