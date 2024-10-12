@@ -28,11 +28,13 @@ Models
 ------
 
 .. autoclass:: dependency_groups.DependencyGroupInclude
+    :members:
 
 Resolver
 --------
 
 .. autoclass:: dependency_groups.DependencyGroupResolver
+    :members:
 
 Errors
 ------

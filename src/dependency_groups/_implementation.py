@@ -196,7 +196,7 @@ def resolve(
     dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]], group: str, /
 ) -> tuple[str, ...]:
     """
-    Resolve a dependency group to a list of requirements, as strings.
+    Resolve a dependency group to a tuple of requirements, as strings.
 
     :param dependency_groups: the parsed contents of the ``[dependency-groups]`` table
         from ``pyproject.toml``
