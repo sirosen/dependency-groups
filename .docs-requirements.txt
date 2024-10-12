@@ -1,0 +1,7 @@
+# created with
+#
+#   python -m dependency_groups docs > .docs_requirements.txt
+#
+sphinx>=8.1
+sphinx-issues>=5
+furo

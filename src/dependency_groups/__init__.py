@@ -1,3 +1,13 @@
-from ._implementation import DependencyGroupInclude, DependencyGroupResolver, resolve
+from ._implementation import (
+    CyclicDependencyError,
+    DependencyGroupInclude,
+    DependencyGroupResolver,
+    resolve,
+)
 
-__all__ = ("DependencyGroupInclude", "DependencyGroupResolver", "resolve")
+__all__ = (
+    "CyclicDependencyError",
+    "DependencyGroupInclude",
+    "DependencyGroupResolver",
+    "resolve",
+)

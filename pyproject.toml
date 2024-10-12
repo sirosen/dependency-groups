@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [dependency-groups]
 coverage = ["coverage[toml]"]
 test = ["pytest", {include-group = "coverage"}]
+docs = ["sphinx>=8.1", "sphinx-issues>=5", "furo"]
 lint = ["pre-commit"]
 typing = ["mypy", "packaging"]
 build = ["twine", "build"]
@@ -13,7 +14,7 @@ build = ["twine", "build"]
 name = "dependency-groups"
 version = "0.3.0"
 description = 'A tool for resolving PEP 735 Dependency Group data'
-readme = "README.md"
+readme = "README.rst"
 requires-python = ">=3.9"
 license = { text = "MIT" }
 keywords = []
@@ -41,7 +42,7 @@ pip-install-dependency-groups = "dependency_groups._pip_wrapper:main"
 
 [project.urls]
 source = "https://github.com/sirosen/dependency-groups"
-changelog = "https://github.com/sirosen/dependency-groups/blob/main/CHANGELOG.md"
+changelog = "https://github.com/sirosen/dependency-groups/blob/main/CHANGELOG.rst"
 
 [tool.setuptools.package-data]
 dependency_groups = ["py.typed"]
