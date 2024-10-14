@@ -32,4 +32,4 @@ Interfaces
 Documentation
 -------------
 
-Full documentation is available at TODO STUB!
+Full documentation is available on `the Dependency Groups doc site <https://dependency-groups.readthedocs.io/>`_.
