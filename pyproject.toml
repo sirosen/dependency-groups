@@ -22,7 +22,7 @@ authors = [
   { name = "Stephen Rosen", email = "sirosen0@gmail.com" },
 ]
 classifiers = [
-  "Development Status :: 5 - Production",
+  "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
