@@ -23,23 +23,26 @@ def replace_version(filename, formatstr, old_version, new_version):
 
 
 def update_changelog(new_version):
-    print("updating CHANGELOG.md")
-    with open("CHANGELOG.md") as fp:
+    print("updating CHANGELOG.rst")
+    with open("CHANGELOG.rst") as fp:
         content = fp.read()
 
     content = re.sub(
         r"""
-## Unreleased
+Unreleased
+----------
 (\s*\n)+""",
         f"""
-## Unreleased
+Unreleased
+----------
 
-## {new_version}
+{new_version}
+{'-' * len(new_version)}
 
 """,
         content,
     )
-    with open("CHANGELOG.md", "w") as fp:
+    with open("CHANGELOG.rst", "w") as fp:
         fp.write(content)
 
 
@@ -63,7 +66,7 @@ def main():
     comparse_versions(old_version, new_version)
 
     replace_version("pyproject.toml", 'version = "{}"', old_version, new_version)
-    replace_version("README.md", "rev: {}", old_version, new_version)
+    replace_version("README.rst", "rev: {}", old_version, new_version)
     update_changelog(new_version)
 
 

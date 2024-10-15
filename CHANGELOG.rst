@@ -4,6 +4,12 @@ CHANGELOG
 Unreleased
 ----------
 
+1.0.0
+-----
+
+- Update metadata to 1.0.0 and "Production" status
+- Support Python 3.13
+
 0.3.0
 -----
 
