@@ -15,7 +15,7 @@ name = "dependency-groups"
 version = "1.0.0"
 description = 'A tool for resolving PEP 735 Dependency Group data'
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 license = { text = "MIT" }
 keywords = []
 authors = [
@@ -24,10 +24,12 @@ authors = [
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
