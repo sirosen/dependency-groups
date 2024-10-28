@@ -12,7 +12,7 @@ build = ["twine", "build"]
 
 [project]
 name = "dependency-groups"
-version = "1.0.0"
+version = "1.1.0"
 description = 'A tool for resolving PEP 735 Dependency Group data'
 readme = "README.rst"
 requires-python = ">=3.8"
