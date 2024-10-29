@@ -9,6 +9,7 @@ docs = ["sphinx>=8.1", "sphinx-issues>=5", "furo"]
 lint = ["pre-commit"]
 typing = ["mypy", "packaging"]
 build = ["twine", "build"]
+dev = [{include-group = "test"}]
 
 [project]
 name = "dependency-groups"
@@ -49,6 +50,11 @@ documentation = "https://dependency-groups.readthedocs.io/"
 
 [tool.setuptools.package-data]
 dependency_groups = ["py.typed"]
+
+[tool.uv]
+environments = [
+  "python_version >= '3.10'",
+]
 
 
 [tool.coverage.run]
