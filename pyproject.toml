@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["flit-core"]
+build-backend = "flit_core.buildapi"
 
 [dependency-groups]
 coverage = ["coverage[toml]"]
@@ -48,8 +48,10 @@ source = "https://github.com/sirosen/dependency-groups"
 changelog = "https://github.com/sirosen/dependency-groups/blob/main/CHANGELOG.rst"
 documentation = "https://dependency-groups.readthedocs.io/"
 
-[tool.setuptools.package-data]
-dependency_groups = ["py.typed"]
+
+[tool.flit.sdist]
+include = ["LICENSE.txt", "CHANGELOG.rst", "tests/*.py", "tox.ini"]
+
 
 [tool.uv]
 environments = [
@@ -91,3 +93,6 @@ files = ["src"]
 [tool.isort]
 profile = "black"
 known_first_party = ["mddj"]
+
+[tool.check-sdist]
+git-only = [".*", "Makefile", "docs/*", "scripts/*"]

@@ -44,6 +44,12 @@ repos:
     rev: v2.3.0
     hooks:
       - id: codespell
+  - repo: https://github.com/henryiii/check-sdist
+    rev: v1.2.0
+    hooks:
+      - id: check-sdist
+        args: [--inject-junk]
+        additional_dependencies: ["flit-core"]
   - repo: "local"
     hooks:
       # When Dependabot submits a PR to update a workflow,
