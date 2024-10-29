@@ -195,14 +195,14 @@ class DependencyGroupResolver:
 
 
 def resolve(
-    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]], group: str, /
+    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]], /, *groups: str
 ) -> tuple[str, ...]:
     """
     Resolve a dependency group to a tuple of requirements, as strings.
 
     :param dependency_groups: the parsed contents of the ``[dependency-groups]`` table
         from ``pyproject.toml``
-    :param group: the name of the group to resolve
+    :param groups: the name of the group(s) to resolve
 
     :raises TypeError: if the inputs appear to be the wrong types
     :raises ValueError: if the data does not appear to be valid dependency group data
@@ -210,5 +210,7 @@ def resolve(
     :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
     """
     return tuple(
-        str(r) for r in DependencyGroupResolver(dependency_groups).resolve(group)
+        str(r)
+        for group in groups
+        for r in DependencyGroupResolver(dependency_groups).resolve(group)
     )
