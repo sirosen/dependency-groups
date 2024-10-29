@@ -3,7 +3,6 @@ from __future__ import annotations
 import dataclasses
 import re
 import typing as t
-from collections import defaultdict
 from collections.abc import Mapping
 
 from packaging.requirements import Requirement
@@ -16,12 +15,12 @@ def _normalize_name(name: str) -> str:
 def _normalize_group_names(
     dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]]
 ) -> Mapping[str, t.Union[str, Mapping[str, str]]]:
-    original_names = defaultdict(list)
+    original_names: dict[str, list[str]] = {}
     normalized_groups = {}
 
     for group_name, value in dependency_groups.items():
         normed_group_name = _normalize_name(group_name)
-        original_names[normed_group_name].append(group_name)
+        original_names.setdefault(normed_group_name, []).append(group_name)
         normalized_groups[normed_group_name] = value
 
     errors = []
@@ -83,7 +82,7 @@ class DependencyGroupResolver:
             str, tuple[t.Union[Requirement, DependencyGroupInclude], ...]
         ] = {}
         # a map of group names to their ancestors, used for cycle detection
-        self._include_graph_ancestors: dict[str, tuple[str, ...]] = defaultdict(tuple)
+        self._include_graph_ancestors: dict[str, tuple[str, ...]] = {}
         # a cache of completed resolutions to Requirement lists
         self._resolve_cache: dict[str, tuple[Requirement, ...]] = {}
 
@@ -174,13 +173,14 @@ class DependencyGroupResolver:
             if isinstance(item, Requirement):
                 resolved_group.append(item)
             elif isinstance(item, DependencyGroupInclude):
-                if item.include_group in self._include_graph_ancestors[group]:
+                if item.include_group in self._include_graph_ancestors.get(group, ()):
                     raise CyclicDependencyError(
                         requested_group, group, item.include_group
                     )
                 else:
                     self._include_graph_ancestors[item.include_group] = (
-                        self._include_graph_ancestors[group] + (group,)
+                        *self._include_graph_ancestors.get(group, ()),
+                        group,
                     )
                 resolved_group.extend(
                     self._resolve(item.include_group, requested_group)
