@@ -24,6 +24,16 @@ def test_single_include_group():
     assert set(resolve(groups, "test")) == {"pytest", "sqlalchemy"}
 
 
+def test_sdual_include_group():
+    groups = {
+        "test": [
+            "pytest",
+        ],
+        "runtime": ["sqlalchemy"],
+    }
+    assert set(resolve(groups, "test", "runtime")) == {"pytest", "sqlalchemy"}
+
+
 def test_normalized_group_name():
     groups = {
         "TEST": ["pytest"],
