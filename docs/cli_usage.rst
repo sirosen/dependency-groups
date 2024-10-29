@@ -34,6 +34,6 @@ The ``lint-dependency-groups`` CLI is also available as a pre-commit hook:
 
     repos:
       - repo: https://github.com/sirosen/dependency-groups
-        rev: 1.1.0
+        rev: 1.2.0
         hooks:
           - id: lint-dependency-groups
