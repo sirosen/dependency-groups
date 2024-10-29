@@ -9,14 +9,14 @@ docs = ["sphinx>=8.1", "sphinx-issues>=5", "furo"]
 lint = ["pre-commit"]
 typing = ["mypy", "packaging"]
 build = ["twine", "build"]
-dev = [{include-group = "coverage"}, {include-group = "test"}]
+dev = [{include-group = "test"}]
 
 [project]
 name = "dependency-groups"
 version = "1.1.0"
 description = 'A tool for resolving PEP 735 Dependency Group data'
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 license = { text = "MIT" }
 keywords = []
 authors = [
