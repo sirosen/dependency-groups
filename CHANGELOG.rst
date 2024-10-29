@@ -4,6 +4,11 @@ CHANGELOG
 Unreleased
 ----------
 
+- Switch to ``flit-core`` as the build backend
+- Add support for supplying multiple dependency groups to the functional
+  ``resolve()`` API: ``resolve(dependency_groups, *groups: str)``. Thanks
+  :user:`henryiii`!
+
 1.1.0
 -----
 
