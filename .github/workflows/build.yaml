@@ -15,23 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: get date for caching
-        run: /bin/date -u "+%U" > cachedate.txt
-        shell: bash
-
       - uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.py }}"
-          cache: "pip"
-          cache-dependency-path: |
-            .github/workflows/build.yaml
-            pyproject.toml
-            tox.ini
-            cachedate.txt
 
-      - run: python -m pip install tox
+      - uses: astral-sh/setup-uv@v3
 
-      - run: python -m tox run -e "${{ matrix.toxenv }}"
+      - run: uv tool install tox --with tox-uv
+
+      - run: tox run -e "${{ matrix.toxenv }}"
 
   ci-test-matrix:
     strategy:
@@ -41,10 +33,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: get date for caching
-        run: /bin/date -u "+%U" > cachedate.txt
-        shell: bash
 
       - uses: actions/setup-python@v5
         id: setup-python
@@ -56,25 +44,10 @@ jobs:
             3.11
             3.12
             3.13
-          cache: "pip"
-          cache-dependency-path: |
-            .github/workflows/build.yaml
-            pyproject.toml
-            tox.ini
-            cachedate.txt
 
-      - run: python -m pip install tox
+      - uses: astral-sh/setup-uv@v3
 
-      - name: cache tox virtualenvs
-        uses: actions/cache@v4
-        with:
-          path: .tox
-          key: >
-            tox
-            os=${{ runner.os }}
-            python=${{ steps.setup-python.outputs.python-version }}
-            hash=${{ hashFiles('.github/workflows/build.yaml', 'pyproject.toml', 'tox.ini', 'cachedate.txt') }}
+      - run: uv tool install tox --with tox-uv
 
       - name: test
-        run: |
-          python -m tox run -m ci
+        run: tox run -m ci
