@@ -8,7 +8,7 @@ try:
     import tomllib
 except ImportError:
     try:
-        import tomli as tomllib  # type: ignore[no-redef]
+        import tomli as tomllib  # type: ignore[no-redef, unused-ignore]
     except ModuleNotFoundError:
         print(
             "Usage error: dependency-groups CLI requires tomli or Python 3.11+",

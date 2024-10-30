@@ -5,14 +5,7 @@ import argparse
 import sys
 
 from dependency_groups import DependencyGroupResolver
-
-try:
-    import tomllib
-except ImportError:
-    try:
-        import tomli as tomllib  # type: ignore[no-redef]
-    except ImportError:  # pragma: no cover
-        tomllib = None  # type: ignore[assignment]
+from dependency_groups._toml_compat import tomllib
 
 
 def main(*, argv: list[str] | None = None) -> None:
