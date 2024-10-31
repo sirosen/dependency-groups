@@ -14,12 +14,12 @@ def _invoke_pip(deps: list[str]) -> None:
 
 
 def main(*, argv: list[str] | None = None) -> None:
-    if not tomllib:
+    if tomllib is None:
         print(
             "Usage error: dependency-groups CLI requires tomli or Python 3.11+",
             file=sys.stderr,
         )
-        sys.exit(2)
+        raise SystemExit(2)
 
     parser = argparse.ArgumentParser(description="Install Dependency Groups.")
     parser.add_argument(
