@@ -42,6 +42,10 @@ dependencies = [
 [project.scripts]
 lint-dependency-groups = "dependency_groups._lint_dependency_groups:main"
 pip-install-dependency-groups = "dependency_groups._pip_wrapper:main"
+dependency-groups = "dependency_groups.__main__:main"
+
+[project.optional-dependencies]
+cli = ["tomli; python_version<'3.11'"]
 
 [project.urls]
 source = "https://github.com/sirosen/dependency-groups"
