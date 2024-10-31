@@ -3,21 +3,17 @@ import argparse
 import sys
 
 from dependency_groups import resolve
+from dependency_groups._toml_compat import tomllib
 
-try:
-    import tomllib
-except ImportError:
-    try:
-        import tomli as tomllib  # type: ignore[no-redef]
-    except ModuleNotFoundError:
+
+def main() -> None:
+    if tomllib is None:
         print(
             "Usage error: dependency-groups CLI requires tomli or Python 3.11+",
             file=sys.stderr,
         )
-        raise SystemExit(2) from None
+        raise SystemExit(2)
 
-
-def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "A dependency-groups CLI. Prints out a resolved group, newline-delimited."

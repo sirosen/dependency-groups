@@ -4,26 +4,6 @@ on:
   pull_request:
 
 jobs:
-  run-tox-env:
-    strategy:
-      matrix:
-        toxenv: [mypy, twine-check]
-        py: ["3.x"]
-
-    runs-on: ubuntu-latest
-    name: "Run '${{ matrix.toxenv }}' on python ${{ matrix.py }}"
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "${{ matrix.py }}"
-
-      - uses: astral-sh/setup-uv@v3
-
-      - run: uv tool install tox --with tox-uv
-
-      - run: tox run -e "${{ matrix.toxenv }}"
 
   ci-test-matrix:
     strategy:
@@ -45,9 +25,52 @@ jobs:
             3.12
             3.13
 
+      # get the week of the year (1-52) for cache control
+      # this ensures that at least weekly we'll test with a clear cache
+      - name: set .weeknum.txt
+        run: /bin/date -u "+%U" > .weeknum.txt
+        shell: bash
+
       - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: ".weeknum.txt"
 
       - run: uv tool install tox --with tox-uv
 
       - name: test
         run: tox run -m ci
+
+  other-tox-checks:
+    strategy:
+      matrix:
+        include:
+          - pythons: ["3.8", "3.13"]
+            tox_label: "ci-mypy"
+          - pythons: ["3.13"]
+            tox_label: "ci-package-check"
+
+    runs-on: ubuntu-latest
+    name: "Run '${{ matrix.tox_label }}'"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: "${{ join( matrix.pythons, '\n') }}"
+
+      # get the week of the year (1-52) for cache control
+      # this ensures that at least weekly we'll test with a clear cache
+      - name: set .weeknum.txt
+        run: /bin/date -u "+%U" > .weeknum.txt
+        shell: bash
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: ".weeknum.txt"
+
+      - run: uv tool install tox --with tox-uv
+
+      - run: tox run -m "${{ matrix.tox_label }}"
