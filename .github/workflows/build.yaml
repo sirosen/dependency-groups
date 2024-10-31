@@ -14,7 +14,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # get the week of the year (1-52) for nice cache control
+      - uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: |
+            3.8
+            3.9
+            3.10
+            3.11
+            3.12
+            3.13
+
+      # get the week of the year (1-52) for cache control
+      # this ensures that at least weekly we'll test with a clear cache
       - name: set .weeknum.txt
         run: /bin/date -u "+%U" > .weeknum.txt
         shell: bash
@@ -23,9 +35,6 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: ".weeknum.txt"
-
-      - name: install pythons
-        run: uv python install 3.8 3.9 3.10 3.11 3.12 3.13
 
       - run: uv tool install tox --with tox-uv
 
@@ -46,7 +55,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # get the week of the year (1-52) for nice cache control
+      - uses: actions/setup-python@v5
+        id: setup-python
+        with:
+          python-version: "${{ join( matrix.pythons, '\n') }}"
+
+      # get the week of the year (1-52) for cache control
+      # this ensures that at least weekly we'll test with a clear cache
       - name: set .weeknum.txt
         run: /bin/date -u "+%U" > .weeknum.txt
         shell: bash
@@ -55,9 +70,6 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: ".weeknum.txt"
-
-      - name: install pythons
-        run: uv python install ${{ join( matrix.pythons, ' ') }}
 
       - run: uv tool install tox --with tox-uv
 
