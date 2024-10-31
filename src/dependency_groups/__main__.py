@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import argparse
 import sys
 
@@ -62,7 +61,7 @@ def main() -> None:
     if args.output is None or args.output == "-":
         print(content)
     else:
-        with open(args.output, "w") as fp:
+        with open(args.output, "w", encoding="utf-8") as fp:
             print(content, file=fp)
 
 

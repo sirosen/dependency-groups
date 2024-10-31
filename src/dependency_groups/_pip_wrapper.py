@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from __future__ import annotations
 
 import argparse
@@ -17,7 +16,7 @@ except ImportError:
 
 
 def _invoke_pip(deps: list[str]) -> None:
-    subprocess.check_call([sys.executable, "-m", "pip", "install"] + deps)
+    subprocess.check_call([sys.executable, "-m", "pip", "install", *deps])
 
 
 def main(*, argv: list[str] | None = None) -> None:
