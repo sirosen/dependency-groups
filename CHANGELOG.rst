@@ -4,6 +4,8 @@ CHANGELOG
 Unreleased
 ----------
 
+- Optimize the behavior of the ``resolve()`` function on multiple groups.
+
 1.3.0
 -----
 
