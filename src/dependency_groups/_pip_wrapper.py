@@ -4,8 +4,8 @@ import argparse
 import subprocess
 import sys
 
-from dependency_groups import DependencyGroupResolver
-from dependency_groups._toml_compat import tomllib
+from ._implementation import DependencyGroupResolver
+from ._toml_compat import tomllib
 
 
 def _invoke_pip(deps: list[str]) -> None:

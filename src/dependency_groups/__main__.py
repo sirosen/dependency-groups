@@ -1,8 +1,8 @@
 import argparse
 import sys
 
-from dependency_groups import resolve
-from dependency_groups._toml_compat import tomllib
+from ._implementation import resolve
+from ._toml_compat import tomllib
 
 
 def main() -> None:
