@@ -4,6 +4,9 @@ CHANGELOG
 Unreleased
 ----------
 
+1.3.0
+-----
+
 - Bugfix: raise a ``TypeError`` on non-list groups (was ``ValueError``).
   Thanks :user:`henryiii`!
 
