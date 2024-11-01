@@ -4,6 +4,21 @@ CHANGELOG
 Unreleased
 ----------
 
+- Bugfix: raise a ``TypeError`` on non-list groups (was ``ValueError``).
+  Thanks :user:`henryiii`!
+
+- Several improvements to the CLI interfaces! Thanks :user:`henryiii`!
+
+  - Add support for a ``cli`` extra, as in
+    ``pip install "dependency-groups[cli]"``, which ensures that ``tomli`` is
+    present on older Pythons.
+
+  - Add support for ``dependency-groups`` as an entrypoint, as an alias of
+    ``python -m dependency_groups``.
+
+  - The ``dependency-groups`` command now supports a ``--list`` flag to list
+    groups instead of resolving them.
+
 1.2.0
 -----
 

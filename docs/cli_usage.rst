@@ -3,13 +3,27 @@ CLI Usage
 
 There are three CLI tools provided by ``dependency-groups``.
 
-Module Usage
-------------
+Viewing Groups
+--------------
 
-``dependency-groups`` provides a simple, module-level entrypoint.
+``dependency-groups`` is a CLI command, provided by the package.
 It can parse a pyproject.toml file and print a dependency group's contents back
-out.
-Just use ``python -m dependency_groups --help`` for details!
+out, newline separated.
+This data is therefore valid for use as a ``requirements.txt`` file.
+
+``dependency-groups --list`` can be used to list the available dependency
+groups.
+
+Use ``dependency-groups --help`` for details!
+
+
+Module Usage
+^^^^^^^^^^^^
+
+``dependency-groups`` provides a module-level entrypoint, identical to the
+``dependency-groups`` CLI.
+
+e.g., ``python -m dependency_groups --list`` can be used to list groups.
 
 Installer
 ---------
