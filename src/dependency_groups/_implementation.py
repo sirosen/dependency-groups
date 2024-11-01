@@ -206,8 +206,5 @@ def resolve(
     :raises LookupError: if group name is absent
     :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
     """
-    return tuple(
-        str(r)
-        for group in groups
-        for r in DependencyGroupResolver(dependency_groups).resolve(group)
-    )
+    resolver = DependencyGroupResolver(dependency_groups)
+    return tuple(str(r) for group in groups for r in resolver.resolve(group))
