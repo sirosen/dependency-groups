@@ -4,7 +4,7 @@ import sys
 
 
 def get_old_version():
-    with open("pyproject.toml") as fp:
+    with open("pyproject.toml", encoding="utf-8") as fp:
         content = fp.read()
     match = re.search(r'^version = "(\d+\.\d+\.\d+)"$', content, flags=re.MULTILINE)
     assert match
@@ -13,18 +13,18 @@ def get_old_version():
 
 def replace_version(filename, formatstr, old_version, new_version):
     print(f"updating {filename}")
-    with open(filename) as fp:
+    with open(filename, encoding="utf-8") as fp:
         content = fp.read()
     old_str = formatstr.format(old_version)
     new_str = formatstr.format(new_version)
     content = content.replace(old_str, new_str)
-    with open(filename, "w") as fp:
+    with open(filename, "w", encoding="utf-8") as fp:
         fp.write(content)
 
 
 def update_changelog(new_version):
     print("updating CHANGELOG.rst")
-    with open("CHANGELOG.rst") as fp:
+    with open("CHANGELOG.rst", encoding="utf-8") as fp:
         content = fp.read()
 
     content = re.sub(
@@ -42,7 +42,7 @@ Unreleased
 """,
         content,
     )
-    with open("CHANGELOG.rst", "w") as fp:
+    with open("CHANGELOG.rst", "w", encoding="utf-8") as fp:
         fp.write(content)
 
 

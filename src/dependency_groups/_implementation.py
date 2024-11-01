@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import dataclasses
 import re
-import typing as t
 from collections.abc import Mapping
 
 from packaging.requirements import Requirement
@@ -13,8 +12,8 @@ def _normalize_name(name: str) -> str:
 
 
 def _normalize_group_names(
-    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]]
-) -> Mapping[str, t.Union[str, Mapping[str, str]]]:
+    dependency_groups: Mapping[str, str | Mapping[str, str]]
+) -> Mapping[str, str | Mapping[str, str]]:
     original_names: dict[str, list[str]] = {}
     normalized_groups = {}
 
@@ -72,23 +71,21 @@ class DependencyGroupResolver:
 
     def __init__(
         self,
-        dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]],
+        dependency_groups: Mapping[str, str | Mapping[str, str]],
     ) -> None:
         if not isinstance(dependency_groups, Mapping):
             raise TypeError("Dependency Groups table is not a mapping")
         self.dependency_groups = _normalize_group_names(dependency_groups)
         # a map of group names to parsed data
         self._parsed_groups: dict[
-            str, tuple[t.Union[Requirement, DependencyGroupInclude], ...]
+            str, tuple[Requirement | DependencyGroupInclude, ...]
         ] = {}
         # a map of group names to their ancestors, used for cycle detection
         self._include_graph_ancestors: dict[str, tuple[str, ...]] = {}
         # a cache of completed resolutions to Requirement lists
         self._resolve_cache: dict[str, tuple[Requirement, ...]] = {}
 
-    def lookup(
-        self, group: str
-    ) -> tuple[t.Union[Requirement, DependencyGroupInclude], ...]:
+    def lookup(self, group: str) -> tuple[Requirement | DependencyGroupInclude, ...]:
         """
         Lookup a group name, returning the parsed dependency data for that group.
         This will not resolve includes.
@@ -97,6 +94,7 @@ class DependencyGroupResolver:
 
         :raises ValueError: if the data does not appear to be valid dependency group
             data
+        :raises TypeError: if the data is not a string
         :raises LookupError: if group name is absent
         :raises packaging.requirements.InvalidRequirement: if a specifier is not valid
         """
@@ -124,7 +122,7 @@ class DependencyGroupResolver:
 
     def _parse_group(
         self, group: str
-    ) -> tuple[t.Union[Requirement, DependencyGroupInclude], ...]:
+    ) -> tuple[Requirement | DependencyGroupInclude, ...]:
         # short circuit -- never do the work twice
         if group in self._parsed_groups:
             return self._parsed_groups[group]
@@ -134,9 +132,9 @@ class DependencyGroupResolver:
 
         raw_group = self.dependency_groups[group]
         if not isinstance(raw_group, list):
-            raise ValueError(f"Dependency group '{group}' is not a list")
+            raise TypeError(f"Dependency group '{group}' is not a list")
 
-        elements: list[t.Union[Requirement, DependencyGroupInclude]] = []
+        elements: list[Requirement | DependencyGroupInclude] = []
         for item in raw_group:
             if isinstance(item, str):
                 # packaging.requirements.Requirement parsing ensures that this is a
@@ -177,11 +175,10 @@ class DependencyGroupResolver:
                     raise CyclicDependencyError(
                         requested_group, group, item.include_group
                     )
-                else:
-                    self._include_graph_ancestors[item.include_group] = (
-                        *self._include_graph_ancestors.get(group, ()),
-                        group,
-                    )
+                self._include_graph_ancestors[item.include_group] = (
+                    *self._include_graph_ancestors.get(group, ()),
+                    group,
+                )
                 resolved_group.extend(
                     self._resolve(item.include_group, requested_group)
                 )
@@ -195,7 +192,7 @@ class DependencyGroupResolver:
 
 
 def resolve(
-    dependency_groups: Mapping[str, t.Union[str, Mapping[str, str]]], /, *groups: str
+    dependency_groups: Mapping[str, str | Mapping[str, str]], /, *groups: str
 ) -> tuple[str, ...]:
     """
     Resolve a dependency group to a tuple of requirements, as strings.
