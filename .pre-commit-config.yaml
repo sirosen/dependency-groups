@@ -50,15 +50,3 @@ repos:
       - id: check-sdist
         args: [--inject-junk]
         additional_dependencies: ["flit-core"]
-  - repo: "local"
-    hooks:
-      # When Dependabot submits a PR to update a workflow,
-      # update the project version listed above in this config
-      #
-      # it must run after other updates
-      - id: "canary"
-        name: "Synchronize pre-commit-config repo version"
-        language: "python"
-        entry: "python scripts/sync-precommit-config-version.py"
-        files: ".github/workflows/canary.yaml"
-        pass_filenames: false
